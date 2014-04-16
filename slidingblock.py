@@ -51,7 +51,7 @@ def heuristic_right_w_count(target_blocks, status, i, j):
     heuristic = 0
     for block in target_blocks:
         if block == "B":
-            heuristic += max(0, right_w_count)
+            heuristic += right_w_count
         if block == "W":
             right_w_count -= 1
     return heuristic
@@ -87,9 +87,7 @@ def heuristic_pos_to_end(target_blocks, status, i, j):
 
 
 def heuristic_pos_to_mid(target_blocks, status, i, j):
-    """计算到中间距离的的启发函数，不确定是否最佳
-
-    """
+    """计算到中间距离的的启发函数，不确定是否最佳"""
     center = len(target_blocks) // 2
     heuristic = 0
     for index, block in enumerate(target_blocks[:center]):
@@ -99,6 +97,12 @@ def heuristic_pos_to_mid(target_blocks, status, i, j):
         if block == "W":
             heuristic += max(index-center-1, 1)
     return heuristic
+
+
+def heuristic_right_w_count_with_most_slided(target_blocks, status, i, j):
+    """计算每个 B 块右侧 W 块数目，并给予移动量较大情况奖励的启发函数"""
+    heuristic = heuristic_right_w_count(target_blocks, status, i, j)
+    return heuristic - 4 * abs(i - j)
 
 
 def solve(blocks, heuristic_func):
@@ -158,6 +162,7 @@ def test():
             heuristic_awful,
             heuristic_pos_to_end,
             heuristic_pos_to_mid,
+            heuristic_right_w_count_with_most_slided,
     ]:
         solve("BBBWWWE", heuristic_func)
         logging.debug("")
@@ -172,7 +177,7 @@ def main():
         else:
             blocks = argv[1]
 
-    route = solve(blocks, heuristic_right_w_count)
+    route = solve(blocks, heuristic_right_w_count_with_most_slided)
     print(" ".join(map(lambda s: str(s[1]), route[:-1])))
 
 
